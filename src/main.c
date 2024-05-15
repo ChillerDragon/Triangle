@@ -3,4 +3,24 @@
 
 #include <stdio.h>
 
-int main() { puts("hello world"); }
+int main() {
+  puts("hello world");
+
+  glfwInit();
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  GLFWwindow *window = glfwCreateWindow(800, 600, "LearnOpenGL", NULL, NULL);
+  if (window == NULL) {
+    puts("Failed to create GLFW window");
+    glfwTerminate();
+    return -1;
+  }
+  glfwMakeContextCurrent(window);
+
+  while (!glfwWindowShouldClose(window)) {
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+  }
+}
