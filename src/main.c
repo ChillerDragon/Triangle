@@ -43,7 +43,7 @@ void check_compile_errors(unsigned int shader) {
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success) {
     char info[512];
-    glGetShaderInfoLog(shader, 512, NULL, info);
+    glGetShaderInfoLog(shader, sizeof(info), NULL, info);
     fprintf(stderr, "failed to compile shader: %s\n", info);
     exit(1);
   }
@@ -107,6 +107,27 @@ int main() {
   glShaderSource(fragmentShader, 1, &sf, NULL);
   glCompileShader(fragmentShader);
   check_compile_errors(fragmentShader);
+
+  unsigned int shaderProgram;
+  shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
+  glLinkProgram(shaderProgram);
+
+  int success;
+  glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+  if (!success) {
+    char info[512];
+    glGetProgramInfoLog(shaderProgram, sizeof(info), NULL, info);
+    fprintf(stderr, "failed to link shader: %s", info);
+    return -1;
+  }
+  glUseProgram(shaderProgram);
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
 
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
