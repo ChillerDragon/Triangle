@@ -19,6 +19,13 @@ int main() {
   }
   glfwMakeContextCurrent(window);
 
+  GLenum err = glewInit();
+  if (GLEW_OK != err) {
+    printf("Error: %s\n", glewGetErrorString(err));
+    glfwTerminate();
+    return -1;
+  }
+
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glfwPollEvents();

@@ -42,11 +42,6 @@ jobs:
         brew install pkg-config cmake || true
         sudo rm -rf /Library/Developer/CommandLineTools
 
-    - name: Prepare windows
-      if: contains(matrix.os, 'windows')
-      run: |
-          python3 -m pip install Jinja2==3.1.4
-
     - name: Build in debug mode
       run: |
         mkdir debug
