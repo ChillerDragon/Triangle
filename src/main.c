@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #include <stdio.h>
+#include <stdlib.h>
 
 int running = 1;
 
@@ -11,17 +12,41 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     running = 0;
 }
 
-
-void processInput(GLFWwindow *window)
-{
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, 1);
+void processInput(GLFWwindow *window) {
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    glfwSetWindowShouldClose(window, 1);
 }
 
+void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
+  glViewport(0, 0, width, height);
+}
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
+void load_shader(const char *path, char *buf, int buf_size) {
+  FILE *f = fopen(path, "r");
+  if (!f) {
+    puts("failed to load shader");
+    exit(1);
+  }
+
+  fseek(f, 0, SEEK_END);
+  long fsize = ftell(f);
+  fseek(f, 0, SEEK_SET);
+  if (fsize > buf_size)
+    fsize = buf_size;
+  fread(buf, buf_size, 1, f);
+  buf[fsize] = 0;
+  fclose(f);
+}
+
+void check_compile_errors(unsigned int shader) {
+  int success;
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  if (!success) {
+    char info[512];
+    glGetShaderInfoLog(shader, 512, NULL, info);
+    fprintf(stderr, "failed to compile shader: %s\n", info);
+    exit(1);
+  }
 }
 
 int main() {
@@ -52,10 +77,49 @@ int main() {
   glfwSetKeyCallback(window, key_callback);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
+  // clang-format off
+  float vertices[] = {
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f
+  };
+  // clang-format on
+
+  char aBasicVertex[512];
+  load_shader("data/shaders/basic_vertex.glsl", aBasicVertex,
+              sizeof(aBasicVertex));
+  const char *s = aBasicVertex;
+
+  unsigned int vertexShader;
+  vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+  glShaderSource(vertexShader, 1, &s, NULL);
+  glCompileShader(vertexShader);
+  check_compile_errors(vertexShader);
+
+  char aBasicFragment[512];
+  load_shader("data/shaders/basic_fragment.glsl", aBasicFragment,
+              sizeof(aBasicFragment));
+  const char *sf = aBasicFragment;
+
+  unsigned int fragmentShader;
+  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(fragmentShader, 1, &sf, NULL);
+  glCompileShader(fragmentShader);
+  check_compile_errors(fragmentShader);
+
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glfwPollEvents();
     processInput(window);
+
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     if (!running)
       break;
