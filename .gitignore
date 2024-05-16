@@ -4,8 +4,6 @@ CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
 config.py
-craft
-world
 env
 log.txt
 *.o
@@ -24,3 +22,4 @@ cmake_uninstall.cmake
 libglfw3.a
 test_fs_support_CASE_sensitivity
 test_fs_support_case_sensitivity
+venv/

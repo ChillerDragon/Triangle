@@ -57,6 +57,27 @@ add_definitions(-DGLEW_STATIC)
 add_subdirectory(deps/glfw EXCLUDE_FROM_ALL)
 add_subdirectory(deps/glew EXCLUDE_FROM_ALL)
 
+add_subdirectory(deps/glad/cmake glad_cmake)
+
+find_package(Python3 REQUIRED)
+
+set(VENV "${CMAKE_SOURCE_DIR}/venv")
+set(REQUIREMENTS "${CMAKE_SOURCE_DIR}/deps/glad/requirements.txt")
+set(BIN_DIR "${VENV}/bin")
+execute_process(COMMAND "${Python3_EXECUTABLE}" -m venv "${VENV}")
+execute_process(COMMAND "${BIN_DIR}/pip" install -U pip wheel)
+execute_process(COMMAND "${BIN_DIR}/pip" install -r "${REQUIREMENTS}")
+
+set(ENV{VIRTUAL_ENV} "${VENV}")
+set(Python3_FIND_VIRTUALENV FIRST)
+
+unset(Python3_EXECUTABLE)
+
+find_package(Python3 COMPONENTS Interpreter Development)
+
+glad_add_library(glad_gl_core_33 REPRODUCIBLE API gl:core=3.3)
+
+
 set(TRIANGLE_DEPS
     ${GLFW_LIBRARIES}
     ${CURL_LIBRARIES}
@@ -64,11 +85,13 @@ set(TRIANGLE_DEPS
 )
 
 target_link_libraries(triangle
+    PUBLIC glad_gl_core_33
     PRIVATE glfw
     PRIVATE libglew_static
     ${TRIANGLE_DEPS}
 )
 target_link_libraries(trianglelib
+    PUBLIC glad_gl_core_33
     PRIVATE glfw
     PRIVATE libglew_static
     ${TRIANGLE_DEPS}
