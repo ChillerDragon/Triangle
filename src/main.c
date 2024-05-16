@@ -3,6 +3,14 @@
 
 #include <stdio.h>
 
+int running = 1;
+
+void key_callback(GLFWwindow *window, int key, int scancode, int action,
+                  int mods) {
+  if (key == GLFW_KEY_Q && action == GLFW_PRESS)
+    running = 0;
+}
+
 int main() {
   puts("hello world");
 
@@ -26,8 +34,14 @@ int main() {
     return -1;
   }
 
+  glViewport(0, 0, 800, 600);
+  glfwSetKeyCallback(window, key_callback);
+
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glfwPollEvents();
+
+    if (!running)
+      break;
   }
 }
