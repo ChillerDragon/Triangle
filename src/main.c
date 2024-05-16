@@ -11,6 +11,19 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     running = 0;
 }
 
+
+void processInput(GLFWwindow *window)
+{
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, 1);
+}
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
 int main() {
   puts("hello world");
 
@@ -35,13 +48,18 @@ int main() {
   }
 
   glViewport(0, 0, 800, 600);
+
   glfwSetKeyCallback(window, key_callback);
+  glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glfwPollEvents();
+    processInput(window);
 
     if (!running)
       break;
   }
+
+  glfwTerminate();
 }
