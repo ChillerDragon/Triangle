@@ -20,6 +20,7 @@ struct Player {
   int x;
   int y;
   int dir;
+  int vel_x;
 } typedef Player;
 
 Player player = {10, 10, 0};
@@ -27,6 +28,9 @@ Player player = {10, 10, 0};
 #define STOP 0
 #define RIGHT 1
 #define LEFT -1
+
+int key_a = 0;
+int key_d = 0;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
@@ -36,17 +40,37 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
     glfwSetWindowShouldClose(window, 1);
 
   if (key == GLFW_KEY_A)
-    player.dir = action == GLFW_RELEASE ? STOP : LEFT;
+    key_a = action != GLFW_RELEASE;
   if (key == GLFW_KEY_D)
-    player.dir = action == GLFW_RELEASE ? STOP : RIGHT;
+    key_d = action != GLFW_RELEASE;
+
+  if (key_a && key_d)
+    player.dir = STOP;
+  else if (key_a)
+    player.dir = LEFT;
+  else if (key_d)
+    player.dir = RIGHT;
+  else
+    player.dir = STOP;
 }
 
 void update() {
-  int speed = 10;
+  int speed = 20;
+  // int inertia = 1;
+  // player.vel_x += speed * player.dir;
+
+  // if(player.vel_x > 0)
+  //   player.vel_x -= inertia;
+  // else if(player.vel_x < 0)
+  //   player.vel_x += inertia;
+
+  // player.x += player.vel_x;
+
   player.x += speed * player.dir;
-  if(player.x < 0)
+
+  if (player.x < 0)
     player.x = 0;
-  if(player.x > g.world.width)
+  if (player.x > g.world.width)
     player.x = g.world.width;
 
   // printf("x=%d y=%d dir=%d\n", player.x, player.y, player.dir);
@@ -96,10 +120,10 @@ void draw_triangle(unsigned int *vbo, unsigned int *vao, int x, int y) {
   };
   // clang-format on
 
-  for(int i = 0; i < 3*3; i++) {
-    if(i % 3 == 0)
+  for (int i = 0; i < 3 * 3; i++) {
+    if (i % 3 == 0)
       vertices[i] += world_coord_to_opengl_x(x);
-    if((i + 1) % 3 == 0)
+    if ((i + 1) % 3 == 0)
       vertices[i] += world_coord_to_opengl_y(y);
   }
 
@@ -129,7 +153,8 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  GLFWwindow *window = glfwCreateWindow(g.world.width, g.world.height, "UwU OpenGL", NULL, NULL);
+  GLFWwindow *window =
+      glfwCreateWindow(g.world.width, g.world.height, "UwU OpenGL", NULL, NULL);
   if (window == NULL) {
     puts("Failed to create GLFW window");
     glfwTerminate();

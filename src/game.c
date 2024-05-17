@@ -16,7 +16,7 @@ void init_game() {
 }
 
 float norm01(int value, int min, int max) {
-	return (value - min) / (float)(max - min);
+  return (value - min) / (float)(max - min);
 }
 
 float world_coord_to_opengl_x(int x) {
