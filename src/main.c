@@ -80,6 +80,19 @@ void check_compile_errors(unsigned int shader) {
   }
 }
 
+void draw_triangle(unsigned int *vbo) {
+  // clang-format off
+  float vertices[] = {
+     0.0f,  0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
+  };
+  // clang-format on
+  glGenBuffers(1, vbo);
+  glBindBuffer(GL_ARRAY_BUFFER, *vbo);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+}
+
 int main() {
 #if defined OS_LINUX
   puts("hello world");
@@ -115,14 +128,6 @@ int main() {
 
   glfwSetKeyCallback(window, key_callback);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-  // clang-format off
-  float vertices[] = {
-     0.0f,  0.5f, 0.0f,
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-  };
-  // clang-format on
 
   char aBasicVertex[512];
   load_shader("data/shaders/basic_vertex.glsl", aBasicVertex,
@@ -168,9 +173,7 @@ int main() {
   }
 
   unsigned int vbo;
-  glGenBuffers(1, &vbo);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  draw_triangle(&vbo);
 
   unsigned int vao;
   glGenVertexArrays(1, &vao);
