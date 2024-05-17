@@ -44,12 +44,18 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action,
 void update() {
   int speed = 10;
   player.x += speed * player.dir;
+  if(player.x < 0)
+    player.x = 0;
+  if(player.x > g.world.width)
+    player.x = g.world.width;
 
-  printf("x=%d y=%d dir=%d\n", player.x, player.y, player.dir);
+  // printf("x=%d y=%d dir=%d\n", player.x, player.y, player.dir);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
   glViewport(0, 0, width, height);
+  g.world.width = width;
+  g.world.height = height;
 }
 
 void load_shader(const char *path, char *buf, int buf_size) {
@@ -80,7 +86,8 @@ void check_compile_errors(unsigned int shader) {
   }
 }
 
-void draw_triangle(unsigned int *vbo) {
+void draw_triangle(unsigned int *vbo, unsigned int *vao, int x, int y) {
+
   // clang-format off
   float vertices[] = {
      0.0f,  0.5f, 0.0f,
@@ -88,9 +95,22 @@ void draw_triangle(unsigned int *vbo) {
      0.5f, -0.5f, 0.0f,
   };
   // clang-format on
+
+  for(int i = 0; i < 3*3; i++) {
+    if(i % 3 == 0)
+      vertices[i] += world_coord_to_opengl_x(x);
+    if((i + 1) % 3 == 0)
+      vertices[i] += world_coord_to_opengl_y(y);
+  }
+
   glGenBuffers(1, vbo);
   glBindBuffer(GL_ARRAY_BUFFER, *vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+
+  glGenVertexArrays(1, vao);
+  glBindVertexArray(*vao);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
 }
 
 int main() {
@@ -109,7 +129,7 @@ int main() {
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
-  GLFWwindow *window = glfwCreateWindow(800, 600, "UwU OpenGL", NULL, NULL);
+  GLFWwindow *window = glfwCreateWindow(g.world.width, g.world.height, "UwU OpenGL", NULL, NULL);
   if (window == NULL) {
     puts("Failed to create GLFW window");
     glfwTerminate();
@@ -124,7 +144,7 @@ int main() {
     return -1;
   }
 
-  glViewport(0, 0, 800, 600);
+  glViewport(0, 0, g.world.width, g.world.height);
 
   glfwSetKeyCallback(window, key_callback);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
@@ -173,13 +193,7 @@ int main() {
   }
 
   unsigned int vbo;
-  draw_triangle(&vbo);
-
   unsigned int vao;
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
 
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
@@ -195,6 +209,8 @@ int main() {
     if (now > tick_start_time(g.current_tick + 1)) {
       g.current_tick++;
       update();
+
+      draw_triangle(&vbo, &vao, player.x, player.y);
     }
   }
 
