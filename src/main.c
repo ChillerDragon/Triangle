@@ -6,15 +6,36 @@
 
 int running = 1;
 
+struct Player {
+  int x;
+  int y;
+  int dir;
+} typedef Player;
+
+Player player = {10, 10, 0};
+
+#define STOP 0
+#define RIGHT 1
+#define LEFT -1
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action,
                   int mods) {
-  if (key == GLFW_KEY_Q && action == GLFW_PRESS)
-    running = 0;
+  if (key == GLFW_KEY_Q)
+    glfwSetWindowShouldClose(window, 1);
+  if (key == GLFW_KEY_ESCAPE)
+    glfwSetWindowShouldClose(window, 1);
+
+  if (key == GLFW_KEY_A)
+    player.dir = action == GLFW_RELEASE ? STOP : LEFT;
+  if (key == GLFW_KEY_D)
+    player.dir = action == GLFW_RELEASE ? STOP : RIGHT;
 }
 
-void processInput(GLFWwindow *window) {
-  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, 1);
+void update() {
+  int speed = 10;
+  player.x += speed * player.dir;
+
+  // printf("x=%d y=%d dir=%d\n", player.x, player.y, player.dir);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -146,13 +167,14 @@ int main() {
   while (!glfwWindowShouldClose(window)) {
     glfwSwapBuffers(window);
     glfwPollEvents();
-    processInput(window);
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(shaderProgram);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    update();
 
     if (!running)
       break;
