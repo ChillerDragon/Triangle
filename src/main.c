@@ -1,3 +1,11 @@
+#include "detect.h"
+
+#ifdef OS_WINDOWS
+#pragma warning(suppress : 4191)
+#elif defined OS_LINUX
+#pragma message "FUCK YOU CLANGD"
+#endif
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -5,9 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "system.h"
-
 #include "game.h"
+#include "system.h"
 
 GameState g;
 
@@ -84,7 +91,7 @@ int main() {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__
+#ifdef OS_APPLE
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
