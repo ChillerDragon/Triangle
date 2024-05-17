@@ -1,5 +1,13 @@
+#include "detect.h"
+
+#ifdef OS_WINDOWS
+#include <windows.h>
+#endif
+
+#ifdef OS_UNIX
 #include <sys/time.h>
 #include <time.h>
+#endif
 
 #include "system.h"
 

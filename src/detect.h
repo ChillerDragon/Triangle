@@ -13,4 +13,8 @@
 #define OS_LINUX
 #endif
 
+#if defined(OS_LINUX) || defined(OS_APPLE)
+#define OS_UNIX
+#endif
+
 #endif
