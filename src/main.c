@@ -1,10 +1,15 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
-int running = 1;
+#include "system.h"
+
+#include "game.h"
+
+GameState g;
 
 struct Player {
   int x;
@@ -35,7 +40,7 @@ void update() {
   int speed = 10;
   player.x += speed * player.dir;
 
-  // printf("x=%d y=%d dir=%d\n", player.x, player.y, player.dir);
+  printf("x=%d y=%d dir=%d\n", player.x, player.y, player.dir);
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
@@ -72,6 +77,7 @@ void check_compile_errors(unsigned int shader) {
 
 int main() {
   puts("hello world");
+  init_game();
 
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -174,10 +180,11 @@ int main() {
     glUseProgram(shaderProgram);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
-    update();
-
-    if (!running)
-      break;
+    long long now = time_get();
+    if (now > tick_start_time(g.current_tick + 1)) {
+      g.current_tick++;
+      update();
+    }
   }
 
   glDeleteVertexArrays(1, &vao);
