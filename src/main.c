@@ -110,8 +110,13 @@ int main() {
 
   unsigned int shaderProgram;
   shaderProgram = glCreateProgram();
+
   glAttachShader(shaderProgram, vertexShader);
   glAttachShader(shaderProgram, fragmentShader);
+
+  glDeleteShader(vertexShader);
+  glDeleteShader(fragmentShader);
+
   glLinkProgram(shaderProgram);
 
   int success;
@@ -122,8 +127,6 @@ int main() {
     fprintf(stderr, "failed to link shader: %s", info);
     return -1;
   }
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
