@@ -2,8 +2,6 @@
 
 #ifdef OS_WINDOWS
 #pragma warning(suppress : 4191)
-#elif defined OS_LINUX
-#pragma message "FUCK YOU CLANGD"
 #endif
 
 #include <GL/glew.h>
@@ -83,7 +81,10 @@ void check_compile_errors(unsigned int shader) {
 }
 
 int main() {
+#if defined OS_LINUX
   puts("hello world");
+#endif
+
   init_game();
 
   glfwInit();
